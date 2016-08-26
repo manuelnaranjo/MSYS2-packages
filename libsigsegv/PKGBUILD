@@ -1,0 +1,40 @@
+# Maintainer: Manuel Naranjo <naranjo.manuel@gmail.com>
+
+pkgname="libsigsegv"
+pkgver=2.10
+pkgrel=1
+arch=('any')
+pkgdesc="Page fault detection library"
+url="http://www.gnu.org/software/libsigsegv/"
+license=('GPL2')
+source=("http://ftp.gnu.org/gnu/${pkgname}/${pkgname}-${pkgver}.tar.gz"
+        "config.guess"
+        "config.sub")
+sha256sums=('8460a4a3dd4954c3d96d7a4f5dd5bc4d9b76f5754196aa245287553b26d2199a'
+            'c833e2ef8d6b4b5b4a61601087c9e4edb2b3b739d4d9b13a221d54a19b1f882a'
+            '82745ce935695e7984a053c155a64b9ad16ece3a07d931cc90ab3fb28b7221af')
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  cp "${srcdir}/config.guess" "${srcdir}/config.sub" ./build-aux/
+}
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  ./configure \
+    --prefix=/usr \
+    --build=${CHOST} \
+    --host=${CHOST} \
+    --enable-shared
+  make
+}
+
+check() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make check
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make DESTDIR=${pkgdir} install
+}
