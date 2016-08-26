@@ -1,0 +1,45 @@
+# Maintainer: Manuel Naranjo <naranjo.manuel@gmail.com>
+
+pkgname='ffcall'
+pkgver=1.10
+pkgrel=1
+pkgdesc="C library for implementing foreign function calls in embedded interpreters"
+arch=('i686' 'x86_64')
+url="http://www.gnu.org/software/libffcall/"
+license=('GPL2')
+options=('!makeflags')
+source=(http://www.haible.de/bruno/gnu/${pkgbase}-${pkgver}.tar.gz
+        01-make-tests.patch
+        config.guess
+        config.sub)
+sha256sums=(
+  '6f1b5b8fc84b2c0051637fb1e4e4f8b975f5f98bff8fe053c1992347baa4983d'
+  '5af4b60a5022e8f71021eea9d7096680b7d2db259c3994aa81185e23fe5d37ca'
+  'c833e2ef8d6b4b5b4a61601087c9e4edb2b3b739d4d9b13a221d54a19b1f882a'
+  '82745ce935695e7984a053c155a64b9ad16ece3a07d931cc90ab3fb28b7221af'
+)
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  patch -p1 -i "${srcdir}/01-make-tests.patch"
+  cp "${srcdir}/config.guess" "${srcdir}/config.sub" ./autoconf/
+}
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  ./configure \
+    --prefix=/usr
+}
+
+check() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  make check
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+}
