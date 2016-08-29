@@ -1,0 +1,45 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+pkgbase="imagemagick"
+pkgver=7.0.2.10
+pkgrel=1
+pkgdesc="An image viewing/manipulation program (mingw-w64)"
+arch=('any')
+url="https://www.imagemagick.org/"
+license=("custom")
+makedepends=("pkg-config" "zlib-devel" 'liblzma' 'libxml2')
+depends=('zlib' 'liblzma-devel' 'libxml2-devel')
+options=('staticlibs' 'strip' '!debug' 'libtool')
+source=(https://www.imagemagick.org/download/ImageMagick-${pkgver%.*}-${pkgver##*.}.tar.xz)
+sha256sums=('dad306bfd7730e1665c6fdb6eb478fb2c41e2db71ab56451bbaebe9df546b1d2')
+
+build() {
+  export lt_cv_deplibs_check_method='pass_all'
+  [[ $CARCH = "i686" ]] && EXTRAOPTS="--with-gcc-arch=i686"
+  [[ $CARCH = "x86_64" ]] && EXTRAOPTS="" #EXTRAOPTS="--with-gcc-arch=x86-64"
+
+  cd ImageMagick-${pkgver%.*}-${pkgver##*.}
+  ./configure \
+    --prefix=/usr \
+    --build=${CHOST} \
+    --host=${CHOST} \
+    --disable-deprecated \
+    --enable-legacy-support \
+    --without-perl \
+    --without-x \
+    $EXTRAOPTS \
+    CFLAGS="${CFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}"
+
+  if check_option "debug" "y"; then
+    MAKE_VERBOSE="V=1"
+  fi
+  make ${MAKE_VERBOSE}
+}
+
+package() {
+  cd ${srcdir}/ImageMagick-${pkgver%.*}-${pkgver##*.}
+  if check_option "debug" "y"; then
+    MAKE_VERBOSE="V=1"
+  fi
+  make -j1 DESTDIR="${pkgdir}" install ${MAKE_VERBOSE}
+}
