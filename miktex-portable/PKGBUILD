@@ -1,0 +1,36 @@
+# Maintainer: Manuel Naranjo <naranjo.manuel@gmail.com>
+
+pkgname="miktex-portable"
+pkgver=2.9.5987
+pkgrel=1
+pkgdesc="MiKTeX (pronounced mick-tech) is an up-to-date implementation of TeX/LaTeX and related programs for Windows (repacked from portable edition)"
+arch=('any')
+url="http://miktex.org"
+license=('custom')
+makedepends=()
+depends=()
+options=('!strip')
+source=(
+  "http://mirrors.ctan.org/systems/win32/miktex/setup/${pkgname}-${pkgver}.exe"
+  "wrapper.sh.in"
+)
+
+sha256sums=(
+  'b6773ba988007a88c361f63d27833e63fefdb8011238f0ca843135a3c4ffded9'
+  '713a2ade3a19d445624d116f4cc5ebc5e744d72f1572a0808df44b336f66155d'
+)
+
+
+package() {
+  mkdir -p "${pkgdir}/usr/bin"
+  mkdir -p "${pkgdir}/usr/share/${pkgname}"
+  for directory in $(find "${srcdir}/texmfs" -maxdepth 1 -mindepth 1 -type d); do
+    cp -r "${directory}" "${pkgdir}/usr/share/${pkgname}/"
+  done
+
+  for fname in $(find "${pkgdir}/usr/share/${pkgname}/install/miktex/bin" -type f -name \*.exe); do
+    fname="$(basename ${fname})"
+    fname="${fname%.*}"
+    cp "${srcdir}/wrapper.sh.in" "${pkgdir}/usr/bin/${fname}"
+  done
+}
