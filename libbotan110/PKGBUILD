@@ -1,0 +1,46 @@
+# Maintainer: Manuel Naranjo <naranjo.manuel@gmail.com>
+
+pkgname="libbotan110"
+pkgver=1.10.13
+pkgrel=1
+arch=('any')
+url='http://botan.randombit.net/'
+pkgdesc='Botan is a C++ cryptography library released under the permissive Simplified BSD license. (mingw-w64)'
+depends=()
+makedepends=()
+license=('BSD')
+options=('strip' 'staticlibs' 'docs')
+source=(http://botan.randombit.net/releases/Botan-${pkgver}.tgz)
+sha256sums=('23ec973d4b4a4fe04f490d409e08ac5638afe3aa09acd7f520daaff38ba19b90')
+
+prepare() {
+  cd "${srcdir}/Botan-${pkgver}"
+}
+
+build() {
+  cd "${srcdir}/Botan-${pkgver}"
+  # Set prefix to mingw{32,64} not full path. Remove starting slash
+  python configure.py \
+    --disable-shared \
+    --cc=gcc \
+    --cpu=${CARCH} \
+    --os=cygwin \
+    --prefix='$(DESTDIR)' \
+    ${BUILD_TYPE_FLAGS} \
+    --makefile-style=unix \
+    --link-method=copy \
+    --with-bzip2
+
+    make
+    make check
+}
+
+check() {
+  cd "${srcdir}/Botan-${pkgver}"
+  ./check.exe --test
+}
+
+package() {
+  cd "${srcdir}/Botan-${pkgver}"
+  make DESTDIR="${pkgdir}/usr" install
+}
