@@ -1,0 +1,27 @@
+# Maintainer: Manuel Naranjo <naranjo.manuel@gmail.com>
+
+pkgname=freetype
+pkgver=2.6.5
+pkgrel=1
+pkgdesc='A free, high-quality, and portable font engine.'
+arch=('any')
+url='https://www.freetype.org/'
+license=('FTL')
+depends=('zlib' 'libbz2' 'libpng')
+makedepends=('tar' 'zlib-devel' 'libbz2-devel')
+source=("https://downloads.sourceforge.net/${pkgname}/${pkgname}-${pkgver}.tar.gz")
+sha256sums=('3bb24add9b9ec53636a63ea8e867ed978c4f8fdd8f1fa5ccfd41171163d4249a')
+
+build() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc
+}
+
+package() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+
+  make install DESTDIR=${pkgdir}
+}
