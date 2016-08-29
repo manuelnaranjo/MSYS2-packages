@@ -1,0 +1,35 @@
+# Author: Manuel Naranjo <naranjo.manuel@gmail.com>
+
+pkgname=('cpio')
+pkgver=2.12
+pkgrel=2
+pkgdesc='Library and command line tools for XZ and LZMA compressed files'
+arch=('i686' 'x86_64')
+url='http://tukaani.org/xz/'
+license=('GPL' 'LGPL' 'custom')
+depends=('sh' 'libiconv' 'gettext')
+makedepends=('libiconv-devel' 'gettext-devel')
+options=('staticlibs')
+source=("http://ftp.gnu.org/gnu/${pkgname}/${pkgname}-${pkgver}.tar.gz")
+sha256sums=('08a35e92deb3c85d269a0059a27d4140a9667a6369459299d08c17f713a92e73')
+
+prepare() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+}
+
+build() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+
+  ./configure \
+    --build=${CHOST} \
+    --prefix=/usr
+  make
+
+}
+
+package() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  # this file is also provided by tar
+  find "${pkgdir}" -name rmt.8 -delete
+}
