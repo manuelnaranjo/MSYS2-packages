@@ -1,0 +1,30 @@
+# Maintainer: Manuel Naranjo <naranjo.manuel@gmail.com>
+
+pkgname="xpdf"
+pkgver=3.04
+pkgrel=1
+pkgdesc="Xpdf is an open source viewer for Portable Document Format (PDF) files"
+arch=('any')
+url="http://www.foolabs.com/xpdf"
+license=('GPL2')
+makedepends=('')
+depends=('')
+source=(
+  "ftp://ftp.foolabs.com/pub/${pkgname}/${pkgname}-${pkgver}.tar.gz"
+)
+
+sha256sums=(
+  '11390c74733abcb262aaca4db68710f13ffffd42bfe2a0861a5dfc912b2977e5'
+)
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  ./configure \
+    --prefix=/usr \
+    --without-x
+  make
+}
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make DESTDIR=${pkgdir} install
+}
