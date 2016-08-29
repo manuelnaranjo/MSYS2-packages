@@ -1,0 +1,40 @@
+# Maintainer: Manuel Naranjo <naranjo.manuel@gmail.com>
+# based on recipe from Alexpux/mingw-packages
+
+pkgname="libpng"
+pkgver=1.6.21
+pkgrel=1
+arch=('any')
+pkgdesc="A collection of routines used to create PNG format graphics (mingw-w64)"
+depends=("zlib")
+makedepends=("zlib-devel")
+license=('custom')
+url="http://www.libpng.org/pub/png/libpng.html"
+#options=('strip' '!libtool' 'staticlibs')
+source=("https://downloads.sourceforge.net/sourceforge/libpng/${pkgname}-${pkgver}.tar.xz"
+        "https://downloads.sourceforge.net/project/libpng-apng/libpng16/${pkgver}/${pkgname}-${pkgver}-apng.patch.gz")
+
+sha256sums=('6c8f1849eb9264219bf5d703601e5abe92a58651ecae927a03d1a1aa15ee2083'
+            '6da70e2526fe91c3379592546d2f14c0dfef8f04e2b338dddd5dc9ef45618c73')
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  # Add animated PNG (apng) support
+  # see https://sourceforge.net/projects/libpng-apng/
+  patch -p1 -i "${srcdir}/${pkgname}-${pkgver}-apng.patch"
+}
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  ./configure \
+    --prefix=/usr \
+    --enable-shared --enable-static \
+    as_ln_s="cp -pR"
+  make
+}
+
+package () {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make install DESTDIR="${pkgdir}"
+}
