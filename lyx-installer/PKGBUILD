@@ -3,7 +3,7 @@
 pkgname="lyx-installer"
 pkgver=2.2.1
 _pkgrel=2
-pkgrel=3
+pkgrel=4
 pkgdesc="LyX – The Document Processor (repacked from official installer edition)"
 arch=('any')
 url="http://www.lyx.org"
@@ -14,14 +14,14 @@ options=('!strip')
 install="install.sh"
 source=(
   ${pkgname}-${pkgver}.exe::"http://downloads.sourceforge.net/project/lyxwininstaller/LyXWinInstaller/${pkgver}/LyX-${pkgver//\./}-Installer-${_pkgrel}.exe"
-  "wrapper.sh.in"
   "postinstall.py"
+  "lyxrc.dist"
 )
 
 sha256sums=(
   '1a4f7d94d1d14b5bb04921fc1b7594d518a7bea4a1d16069038e19ed48ee1b1f'
-  'ef94e42bf25437a1ad6bc156e75a148ea3a5f21ab0593002b99d3403eefb942d'
   '649558f9a704bc9191609b5ff57432226aac9b8a34a47e3bb73ad2b74de8b802'
+  '9db47d81868373bbf2bee515de49945f04e4fe88d8e965672cde3b89ca5ca34d'
 )
 
 prepare() {
@@ -40,11 +40,6 @@ package() {
   cp -r "${srcdir}/${pkgname}-${pkgver}/ghostscript" "${pkgdir}/usr/share/${pkgname}"
   cp -r "${srcdir}/${pkgname}-${pkgver}/imagemagick" "${pkgdir}/usr/share/${pkgname}"
   cp -r "${srcdir}/${pkgname}-${pkgver}/Resources" "${pkgdir}/usr/share/${pkgname}"
-
-  for fname in $(find "${pkgdir}/usr/share/${pkgname}/bin" -type f -name \*.exe); do
-    fname="$(basename ${fname})"
-    fname="${fname%.*}"
-    cp "${srcdir}/wrapper.sh.in" "${pkgdir}/usr/bin/${fname}"
-  done
+  cp "${srcdir}/lyxrc.dist" "${pkgdir}/usr/share/${pkgname}/Resources/lyxrc.dist"
   cp "${srcdir}/postinstall.py" "${pkgdir}/usr/share/${pkgname}"
 }
