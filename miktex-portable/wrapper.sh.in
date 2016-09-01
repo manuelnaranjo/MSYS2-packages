@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-ME=`basename $0`
-ME="${ME%.*}"
-DIR=`dirname $0`
-
-exec "${DIR}/../share/miktex-portable/install/miktex/bin/${ME}.exe" $@
