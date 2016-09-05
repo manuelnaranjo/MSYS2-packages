@@ -18,6 +18,7 @@ post_install() {
     fname="$(basename ${file})"
     MSYS='winsymlinks:lnk' ln -sf ${file} /usr/bin/${fname}
   done
+  mpm --update-db
 }
 
 post_upgrade() {

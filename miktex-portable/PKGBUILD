@@ -2,7 +2,7 @@
 
 pkgname="miktex-portable"
 pkgver=2.9.5987
-pkgrel=3
+pkgrel=4
 pkgdesc="MiKTeX (pronounced mick-tech) is an up-to-date implementation of TeX/LaTeX and related programs for Windows (repacked from portable edition)"
 arch=('any')
 url="http://miktex.org"
