@@ -1,42 +1,57 @@
 # Maintainer: Manuel Naranjo <naranjo.manuel@gmail.com>
 
-pkgname="lyx-installer"
+_realname='lyx-installer'
+pkgname=('lyx-installer' 'lyx-installer-texmf')
 pkgver=2.2.1
 _pkgrel=2
-pkgrel=5
+pkgrel=9
 pkgdesc="LyX – The Document Processor (repacked from official installer edition)"
 arch=('any')
 url="http://www.lyx.org"
 license=('GPL2')
-makedepends=('p7zip')
-depends=('miktex-portable')
+makedepends=('p7zip' 'curl')
 options=('!strip')
 install="install.sh"
 source=(
-  ${pkgname}-${pkgver}.exe::"http://downloads.sourceforge.net/project/lyxwininstaller/LyXWinInstaller/${pkgver}/LyX-${pkgver//\./}-Installer-${_pkgrel}.exe"
-  "postinstall.py"
+  ${_realname}-${pkgver}.exe::"http://downloads.sourceforge.net/project/lyxwininstaller/LyXWinInstaller/${pkgver}/LyX-${pkgver//\./}-Installer-${_pkgrel}.exe"
+  prepare-tex.sh
 )
 
 sha256sums=(
   '1a4f7d94d1d14b5bb04921fc1b7594d518a7bea4a1d16069038e19ed48ee1b1f'
-  '649558f9a704bc9191609b5ff57432226aac9b8a34a47e3bb73ad2b74de8b802'
+  'f712fa51246a96fd37b28ed4c32041b166d2efbd97d76c9503ac949031ad4206'
 )
 
 prepare() {
-  if [ -d "${srcdir}/${pkgname}-${pkgver}" ]; then
-    rm -rf "${srcdir}/${pkgname}-${pkgver}"
+  if [ -d "${srcdir}/${_realname}-${pkgver}" ]; then
+    rm -rf "${srcdir}/${_realname}-${pkgver}"
   fi
-  mkdir -p "${srcdir}/${pkgname}-${pkgver}"
-  cd "${srcdir}/${pkgname}-${pkgver}"
-  7z x "../${pkgname}-${pkgver}.exe"
+  mkdir -p "${srcdir}/${_realname}-${pkgver}"
+  cd "${srcdir}/${_realname}-${pkgver}"
+  echo "extracting ${_realname}-${pkgver}.exe"
+  7z x "../${_realname}-${pkgver}.exe" &>/dev/null
+
+  cd "${srcdir}/${_realname}-${pkgver}"
+  bash -e "${srcdir}/prepare-tex.sh"
 }
 
-package() {
+package_lyx-installer() {
+  depends=('miktex-portable' "lyx-installer-texmf=${pkgver}-${pkgrel}")
   mkdir -p "${pkgdir}/usr/bin"
-  mkdir -p "${pkgdir}/usr/share/${pkgname}"
-  cp -r "${srcdir}/${pkgname}-${pkgver}/bin" "${pkgdir}/usr/share/${pkgname}"
-  cp -r "${srcdir}/${pkgname}-${pkgver}/ghostscript" "${pkgdir}/usr/share/${pkgname}"
-  cp -r "${srcdir}/${pkgname}-${pkgver}/imagemagick" "${pkgdir}/usr/share/${pkgname}"
-  cp -r "${srcdir}/${pkgname}-${pkgver}/Resources" "${pkgdir}/usr/share/${pkgname}"
-  cp "${srcdir}/postinstall.py" "${pkgdir}/usr/share/${pkgname}"
+  mkdir -p "${pkgdir}/usr/share/${_realname}"
+  cp -r "${srcdir}/${_realname}-${pkgver}/bin" "${pkgdir}/usr/share/${_realname}"
+  cp -r "${srcdir}/${_realname}-${pkgver}/ghostscript" "${pkgdir}/usr/share/${_realname}"
+  cp -r "${srcdir}/${_realname}-${pkgver}/imagemagick" "${pkgdir}/usr/share/${_realname}"
+  cp -r "${srcdir}/${_realname}-${pkgver}/Resources" "${pkgdir}/usr/share/${_realname}"
+}
+
+package_lyx-installer-texmf() {
+  pkgdesc="tex packages needed by lyx"
+  depends=('miktex-portable')
+  install="install-packages.sh"
+
+  mkdir -p "${pkgdir}/usr/share/miktex-portable"
+  mv "${srcdir}/${_realname}-${pkgver}/texmf/texmf" "${pkgdir}/usr/share/miktex-portable/install"
+  mv "${pkgdir}/usr/share/miktex-portable/install/installed-packages.txt" "${pkgdir}/usr/share/miktex-portable/install/installed-packages-lyx-installer.txt"
+  rm -rf "${pkgdir}/usr/share/miktex-portable/install/tpm/packages"
 }

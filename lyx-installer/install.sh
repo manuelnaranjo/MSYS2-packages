@@ -22,7 +22,6 @@ post_install() {
   done
 
   echo "\path_prefix \"$(cygpath -a -m ${miktex})\"" > ${lyxdir}/Resources/lyxrc.dist
-  python ${lyxdir}/postinstall.py
 }
 
 post_upgrade() {
