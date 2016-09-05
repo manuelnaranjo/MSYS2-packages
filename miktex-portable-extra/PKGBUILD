@@ -1,0 +1,73 @@
+# Maintainer: Manuel Naranjo <naranjo.manuel@gmail.com>
+
+pkgname=('miktex-portable-extra')
+pkgver=0.0.1
+pkgrel=1
+pkgdesc="Some extra packages for miktex"
+arch=('any')
+url="http://www.ctan.org"
+license=('CUSTOM')
+depends=('lyx-installer-texmf')
+makedepends=('p7zip' 'curl')
+options=('!strip')
+install="install.sh"
+packages=('fourier' 'srcltx')
+source=()
+
+sha256sums=()
+
+function download_package() {
+  TEXMF_CACHE=${srcdir}
+  CTAN="https://www.ctan.org/tex-archive/systems/win32/miktex/tm/packages"
+  module="${1}"
+  extension="${2}"
+  srcdir="${3}"
+  FILE="${module}${extension}"
+
+  URL="${CTAN}/${FILE}"
+  if curl -L --output /dev/null --silent --head --fail "${URL}"; then
+    echo "getting ${FILE}"
+    curl --silent -L -o ${srcdir}/${FILE} ${URL}
+    return 0
+  fi
+
+  return 1;
+}
+
+function handle_package() {
+  download_package ${1} ".tar.lzma" ${2} && return 0
+  download_package ${1} ".cab" ${2} && return 0
+  download_package ${1} ".tar.bz2" ${2} && return 0
+  echo "ERROR ${1} is not available as .tar.lzma or .cab or .tar.bz2"
+  return 1
+}
+
+prepare() {
+  set -x
+  cd "${srcdir}"
+  echo ${packages[*]}
+  for package in ${packages[*]}; do
+    handle_package ${package} ${srcdir}
+    if [ $? -ne 0 ]; then
+      exit 1
+    fi
+  done
+
+  for i in $(ls ${srcdir}/*.tar.lzma); do
+    MSYS='winsymlinks:lnk' tar --lzma -xmf ${i}
+    basename -s .tar.lzma "${i}"
+  done
+  for i in $(ls ${srcdir}/*.cab); do
+    MSYS='winsymlinks:lnk' 7z x ${i} &>/dev/null
+    basename -s .cab "${i}"
+  done
+  for i in $(ls ${srcdir}/*.tar.bz2) ; do
+      MSYS='winsymlinks:lnk' tar jxmf ${i}
+      basename -s .tar.bz2 "${i}"
+  done
+  set +x
+}
+
+package() {
+  exit 1
+}
